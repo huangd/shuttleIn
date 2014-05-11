@@ -1,54 +1,15 @@
-var q = require('q');
 var debug = require('debug')('shuttle');
 
+var q = require('q');
 var express = require('express');
+
+var shuttleInApi = require('../resource/shuttle-in').shuttleInApi;
+var directions = require('../resource/mapquest').directions;
+
 var router = express.Router();
-var request = require('request').defaults({
-    jar: true,
-    json: true,
-    followRedirect: false
-});
 
-var requestQ = q.denodeify(request);
-
-
-var baseUrl = 'http://shuttle-in.com';
-var loginUrl = baseUrl + '/Account';
-var routesUrl = baseUrl + '/Region/0/Routes';
-
-function login(loginUrl) {
-    return requestQ(loginUrl)
-        .then(function() {
-            var response = arguments[0][0];
-            return requestQ({
-                method: 'POST',
-                url: loginUrl,
-                form: {
-                    PortalID: 45,
-                    Password: 'linkedin'
-                }
-            });
-        });
-}
-
-function shuttleApi(url) {
-    return requestQ(url)
-        .then(function() {
-            var response = arguments[0][0];
-            var body = arguments[0][1];
-            if (response.statusCode !== 200) {
-                debug('response status code: ', response.statusCode, ' need to login');
-                return login(loginUrl)
-                    .then(function() {
-                        return requestQ(url);
-                    });
-            }
-            return [response, body];
-        });
-}
-
-router.get('/routes', function(req, res) {
-    shuttleApi(routesUrl)
+router.get('/region/0/routes', function(req, res) {
+    shuttleInApi(req.path)
         .done(function() {
             var body = arguments[0][1];
             res.json(body);
@@ -56,7 +17,7 @@ router.get('/routes', function(req, res) {
 });
 
 router.get('/route/:vehicleId/vehicles', function(req, res) {
-    shuttleApi(baseUrl + req.path)
+    shuttleInApi(req.path)
         .done(function() {
             var body = arguments[0][1];
             res.json(body);
@@ -64,9 +25,26 @@ router.get('/route/:vehicleId/vehicles', function(req, res) {
 });
 
 router.get('/route/:vehicleId/direction/:number/stops', function(req, res) {
-    shuttleApi(baseUrl + req.path)
+    shuttleInApi(req.path)
         .done(function() {
             var body = arguments[0][1];
+            res.json(body);
+        });
+});
+
+router.get('/directions', function(req, res) {
+    var from = {
+        lat: '37.548981521142',
+        lng: '-122.043736875057'
+    };
+    var to = {
+        lat: '37.423310041785',
+        lng: '-122.071932256222'
+    };
+
+    directions(from, to)
+        .get(1)
+        .done(function(body) {
             res.json(body);
         });
 });
