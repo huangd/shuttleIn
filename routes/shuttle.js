@@ -32,14 +32,19 @@ router.get('/route/:vehicleId/direction/:number/stops', function(req, res) {
         });
 });
 
+/**
+ * get distance, time and other direction info between two points
+ * For example:
+ * http://localhost:3000/shuttle/directions?from[lat]=37.548981521142&from[lng]=-122.043736875057&to[lat]=37.423310041785&to[lng]=-122.071932256222
+ */
 router.get('/directions', function(req, res) {
     var from = {
-        lat: '37.548981521142',
-        lng: '-122.043736875057'
+        lat: req.query.from.lat,
+        lng: req.query.from.lng
     };
     var to = {
-        lat: '37.423310041785',
-        lng: '-122.071932256222'
+        lat: req.query.to.lat,
+        lng: req.query.to.lng
     };
 
     directions(from, to)
