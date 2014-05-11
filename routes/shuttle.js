@@ -1,5 +1,4 @@
 var q = require('q');
-var _ = require('lodash');
 var debug = require('debug')('shuttle');
 
 var express = require('express');
@@ -32,8 +31,8 @@ function login(loginUrl) {
         });
 }
 
-router.get('/routes', function(req, res) {
-    requestQ(routesUrl)
+function shuttleApi(url) {
+    return requestQ(url)
         .then(function() {
             var response = arguments[0][0];
             var body = arguments[0][1];
@@ -41,11 +40,31 @@ router.get('/routes', function(req, res) {
                 debug('response status code: ', response.statusCode, ' need to login');
                 return login(loginUrl)
                     .then(function() {
-                        return requestQ(routesUrl);
+                        return requestQ(url);
                     });
             }
             return [response, body];
-        })
+        });
+}
+
+router.get('/routes', function(req, res) {
+    shuttleApi(routesUrl)
+        .done(function() {
+            var body = arguments[0][1];
+            res.json(body);
+        });
+});
+
+router.get('/route/:vehicleId/vehicles', function(req, res) {
+    shuttleApi(baseUrl + req.path)
+        .done(function() {
+            var body = arguments[0][1];
+            res.json(body);
+        });
+});
+
+router.get('/route/:vehicleId/direction/:number/stops', function(req, res) {
+    shuttleApi(baseUrl + req.path)
         .done(function() {
             var body = arguments[0][1];
             res.json(body);
