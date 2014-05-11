@@ -54,4 +54,30 @@ router.get('/directions', function(req, res) {
         });
 });
 
+/**
+ * get eta from current vehicle location to to point
+ * For example: http://localhost:3000/shuttle/eta/1511?to[lat]=37.423310041785&to[lng]=-122.071932256222
+ */
+router.get('/eta/:vehicleId', function(req, res) {
+    var to = {
+        lat: req.query.to.lat,
+        lng: req.query.to.lng
+    };
+
+    var vehicleId = req.params.vehicleId;
+    shuttleInApi('/route/' + vehicleId + '/vehicles')
+        .get(1)
+        .then(function(body) {
+            var from = {
+                lat: body[0].Latitude,
+                lng: body[0].Longitude
+            };
+            return directions(from, to);
+        })
+        .get(1)
+        .done(function(body) {
+            res.json(body);
+        });
+});
+
 module.exports = router;
