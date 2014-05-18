@@ -1,6 +1,7 @@
 var debug = require('debug')('shuttle');
 
 var q = require('q');
+var traverse = require('traverse');
 var express = require('express');
 
 var shuttleInApi = require('../resource/shuttle-in').shuttleInApi;
@@ -55,12 +56,12 @@ router.get('/route/:vehicleId/direction/:number/stops', function (req, res) {
  */
 router.get('/directions', function (req, res) {
   var from = {
-    lat: req.query.from.lat,
-    lng: req.query.from.lng
+    lat: traverse.get(req, ['query', 'from', 'lat']),
+    lng: traverse.get(req, ['query', 'from', 'lng'])
   };
   var to = {
-    lat: req.query.to.lat,
-    lng: req.query.to.lng
+    lat: traverse.get(req, ['query', 'to', 'lat']),
+    lng: traverse.get(req, ['query', 'to', 'lng'])
   };
 
   directions(from, to)
@@ -76,8 +77,8 @@ router.get('/directions', function (req, res) {
  */
 router.get('/eta/:vehicleId', function (req, res) {
   var to = {
-    lat: req.query.to.lat,
-    lng: req.query.to.lng
+    lat: traverse.get(req, ['query', 'to', 'lat']),
+    lng: traverse.get(req, ['query', 'to', 'lng'])
   };
 
   var vehicleId = req.params.vehicleId;
@@ -85,8 +86,8 @@ router.get('/eta/:vehicleId', function (req, res) {
     .get(1)
     .then(function (body) {
       var from = {
-        lat: body[0].Latitude,
-        lng: body[0].Longitude
+        lat: traverse.get(body, [0, 'Latitude']),
+        lng: traverse.get(body, [0, 'Longitude'])
       };
       return directions(from, to);
     })
