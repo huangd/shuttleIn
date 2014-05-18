@@ -93,6 +93,10 @@ router.get('/eta/:vehicleId', function (req, res) {
     .get(1)
     .done(function (body) {
       res.json(body);
+    }, function(error) {
+        res.json(500, {
+            error: error.message
+        });
     });
 });
 
