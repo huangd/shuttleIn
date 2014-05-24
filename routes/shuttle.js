@@ -41,7 +41,7 @@ router.get('/route/:vehicleId/vehicles', function (req, res) {
  * For example:
  * http://localhost:3000/shuttle/route/1583/direction/0/stops
  */
-router.get('/route/:vehicleId/direction/:number/stops', function (req, res) {
+router.get('/route/:routeId/direction/:number/stops', function (req, res) {
   shuttleInApi(req.path)
     .done(function () {
       var body = arguments[0][1];
