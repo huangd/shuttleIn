@@ -96,6 +96,12 @@ router.get('/eta/:vehicleId', function (req, res) {
         lat: traverse.get(body, [0, 'Latitude']),
         lng: traverse.get(body, [0, 'Longitude'])
       };
+      if (!from.lat || !from.lng) {
+        res.json(500, {
+          error: 'could not get GPS for shuttle: ' + vehicleId
+        });
+        return;
+      }
       return directions(from, to);
     })
     .get(1)
