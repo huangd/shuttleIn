@@ -81,6 +81,13 @@ router.get('/eta/:vehicleId', function (req, res) {
     lng: traverse.get(req, ['query', 'to', 'lng'])
   };
 
+  if (!to.lat || !to.lng) {
+    res.json(500, {
+      error: 'to could not null'
+    });
+    return;
+  }
+
   var vehicleId = req.params.vehicleId;
   shuttleInApi('/route/' + vehicleId + '/vehicles')
     .get(1)
@@ -94,10 +101,10 @@ router.get('/eta/:vehicleId', function (req, res) {
     .get(1)
     .done(function (body) {
       res.json(body);
-    }, function(error) {
-        res.json(500, {
-            error: error.message
-        });
+    }, function (error) {
+      res.json(500, {
+        error: error.message
+      });
     });
 });
 
