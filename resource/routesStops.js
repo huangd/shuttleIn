@@ -14,21 +14,20 @@ function getRoutesStopsList() {
         return shuttleInApi('/region/0/routes').get(1)
             .then(function(body) {
                 return _.map(body, function(route) {
-                    return {
-                        ID: route.ID,
-                        Patterns: route.Patterns
-                    };
+                    return q.spread([
+                            shuttleInApi('/route/' + route.Patterns[0].ID + '/direction/0/stops').get(1),
+                            shuttleInApi('/route/' + route.Patterns[1].ID + '/direction/0/stops').get(1)
+                        ],
+                        function(amStops, pmStops) {
+                            route.Patterns[0].stops = amStops;
+                            route.Patterns[1].stops = pmStops;
+                            return route;
+                        });
                 });
             })
-            .then(function(body) {
-                return _.flatten(_.map(body, function(route) {
-                    return [shuttleInApi('/route/' + route.Patterns[0].ID + '/direction/0/stops').get(1),
-                        shuttleInApi('/route/' + route.Patterns[1].ID + '/direction/0/stops').get(1),
-                    ];
-                }));
-            })
-            .spread(function (argument) {
-                return argument;
+            .spread(function() {
+                routesStopsList = Array.prototype.slice.call(arguments);
+                return routesStopsList;
             });
     }
 }

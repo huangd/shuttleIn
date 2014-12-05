@@ -8,9 +8,9 @@ app.set('port', process.env.PORT || 3000);
 
 var server = app.listen(app.get('port'), function() {
   debug('Express server listening on port ' + server.address().port);
-  setInterval(function () {
-    getRoutesStopsList().done(function (obj) {
-        console.log(require('util').inspect(obj, true, 10, true));
-    });
-  }, 60000);
+  // setInterval(function () {
+  //   getRoutesStopsList().done(function (obj) {
+  //       console.log(require('util').inspect(obj, true, 10, true));
+  //   });
+  // }, 2000);
 });
