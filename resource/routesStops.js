@@ -4,9 +4,11 @@ var _ = require('lodash');
 var shuttleInApi = require('./shuttle-in').shuttleInApi;
 
 var routesStopsList;
-var currentShuttleStatus;
 
 
+/**
+ * Get all the routes and stops data
+ */
 function getRoutesStopsList() {
     if (routesStopsList) {
         return q(routesStopsList);
@@ -32,8 +34,34 @@ function getRoutesStopsList() {
     }
 }
 
+/**
+ * Add real time currentLocations to each route
+ */
 function getCurrentShuttleStatus() {
-    return currentShuttleStatus;
+    return getRoutesStopsList()
+        .then(function(routes) {
+            return _.map(routes, function(route) {
+                return shuttleInApi('/route/' + route.ID + '/vehicles').get(1)
+                    .then(function(currentLocations) {
+                        _.forEach(route.Patterns, function(pattern) {
+                            // Assume that if there are more than one bus in the same route
+                            // they are at the same direction. Either AM or PM
+                            if (currentLocations[0] && currentLocations[0].PatternId == pattern.ID) {
+                                pattern['currentLocations'] = currentLocations;
+                            }
+                        });
+                        return route;
+                    })
+                    .fail(function(error) {
+                        console.error('Failed to get currentLocation for routeId: ' + route.ID, error);
+                        return route;
+                    });
+            });
+        })
+        .spread(function() {
+            return Array.prototype.slice.call(arguments);
+        });
 }
 
 module.exports.getRoutesStopsList = getRoutesStopsList;
+module.exports.getCurrentShuttleStatus = getCurrentShuttleStatus;
