@@ -44,12 +44,15 @@ function getCurrentShuttleStatus() {
                 return shuttleInApi('/route/' + route.ID + '/vehicles').get(1)
                     .then(function(currentLocations) {
                         _.forEach(route.Patterns, function(pattern) {
-                            // Assume that if there are more than one bus in the same route
-                            // they are at the same direction. Either AM or PM
-                            if (currentLocations[0] && currentLocations[0].PatternId == pattern.ID) {
-                                pattern['currentLocations'] = currentLocations;
-                            }
+                            // Clear previousLocation for this pattern
+                            pattern.currentLocations = [];
+                            _.forEach(currentLocations, function(currentLocation) {
+                                if (currentLocation.PatternId == pattern.ID) {
+                                    pattern.currentLocations.push(currentLocation);
+                                }
+                            });
                         });
+
                         return route;
                     })
                     .fail(function(error) {
