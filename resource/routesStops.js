@@ -46,13 +46,19 @@ function getCurrentShuttleStatus() {
                         _.forEach(route.Patterns, function(pattern) {
                             // Clear previousLocation for this pattern
                             pattern.currentLocations = [];
+                            // Preserve previousDoorOpenLocations
+                            pattern.doorOpenLocations = pattern.doorOpenLocations || [];
                             _.forEach(currentLocations, function(currentLocation) {
+                                // Add currentLocation
                                 if (currentLocation.PatternId == pattern.ID) {
                                     pattern.currentLocations.push(currentLocation);
                                 }
+                                // Add DoorOpenLocation
+                                if (currentLocation.DoorStatus == 1) {
+                                    pattern.doorOpenLocations.push(currentLocation);
+                                }
                             });
                         });
-
                         return route;
                     })
                     .fail(function(error) {
