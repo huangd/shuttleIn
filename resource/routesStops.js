@@ -49,13 +49,14 @@ function getCurrentShuttleStatus() {
                             // Preserve previousDoorOpenLocations
                             pattern.doorOpenLocations = pattern.doorOpenLocations || [];
                             _.forEach(currentLocations, function(currentLocation) {
-                                // Add currentLocation
+                                currentLocation.date = new Date();
                                 if (currentLocation.PatternId == pattern.ID) {
+                                    // Add currentLocation
                                     pattern.currentLocations.push(currentLocation);
-                                }
-                                // Add DoorOpenLocation
-                                if (currentLocation.DoorStatus == 1) {
-                                    pattern.doorOpenLocations.push(currentLocation);
+                                    // Add DoorOpenLocation
+                                    if (currentLocation.DoorStatus == 1) {
+                                        pattern.doorOpenLocations.push(currentLocation);
+                                    }
                                 }
                             });
                         });
