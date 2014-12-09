@@ -65,8 +65,9 @@ function getCurrentShuttleStatus() {
                                                 min = latDiff * latDiff + lonDiff * lonDiff;
                                             }
                                         });
+                                        // Add date to the stop in the stops array as well
+                                        doorOpenStop.date = new Date();
                                         currentLocation.stop = doorOpenStop;
-
                                         // Add DoorOpenLocation
                                         pattern.doorOpenLocations.push(currentLocation);
                                     }
