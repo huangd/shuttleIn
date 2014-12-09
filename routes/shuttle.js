@@ -29,7 +29,7 @@ router.get('/region/0/routes', function(req, res) {
  * For example:
  * http://localhost:3000/shuttle/route/1584/vehicles
  */
-router.get('/route/:vehicleId/vehicles', function(req, res) {
+router.get('/route/:routeId/vehicles', function(req, res) {
     shuttleInApi(req.path)
         .done(function() {
             var body = arguments[0][1];
