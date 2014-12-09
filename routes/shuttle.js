@@ -89,7 +89,7 @@ router.get('/directions', function(req, res) {
  * get eta from current vehicle location to to point
  * For example: http://localhost:3000/shuttle/eta/1511?to[lat]=37.423310041785&to[lng]=-122.071932256222
  */
-router.get('/eta/:vehicleId', function(req, res) {
+router.get('/eta/:routeId', function(req, res) {
     var to = {
         lat: traverse.get(req, ['query', 'to', 'lat']),
         lng: traverse.get(req, ['query', 'to', 'lng'])
@@ -102,8 +102,8 @@ router.get('/eta/:vehicleId', function(req, res) {
         return;
     }
 
-    var vehicleId = req.params.vehicleId;
-    shuttleInApi('/route/' + vehicleId + '/vehicles')
+    var routeId = req.params.routeId;
+    shuttleInApi('/route/' + routeId + '/vehicles')
         .get(1)
         .then(function(body) {
             var from = {
@@ -112,7 +112,7 @@ router.get('/eta/:vehicleId', function(req, res) {
             };
             if (!from.lat || !from.lng) {
                 res.json(500, {
-                    error: 'could not get GPS for shuttle: ' + vehicleId
+                    error: 'could not get GPS for shuttle: ' + routeId
                 });
                 return;
             }
