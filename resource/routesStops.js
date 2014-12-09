@@ -53,8 +53,21 @@ function getCurrentShuttleStatus() {
                                 if (currentLocation.PatternId == pattern.ID) {
                                     // Add currentLocation
                                     pattern.currentLocations.push(currentLocation);
-                                    // Add DoorOpenLocation
                                     if (currentLocation.DoorStatus == 1) {
+                                        // Determine which stop it is
+                                        var min = 10000000;
+                                        var doorOpenStop;
+                                        _.forEach(pattern.stops, function(stop) {
+                                            var latDiff = currentLocation.Latitude - stop.Latitude;
+                                            var lonDiff = currentLocation.Longitude - stop.Longitude;
+                                            if (latDiff * latDiff + lonDiff * lonDiff < min) {
+                                                doorOpenStop = stop;
+                                                min = latDiff * latDiff + lonDiff * lonDiff;
+                                            }
+                                        });
+                                        currentLocation.stop = doorOpenStop;
+
+                                        // Add DoorOpenLocation
                                         pattern.doorOpenLocations.push(currentLocation);
                                     }
                                 }
