@@ -69,7 +69,12 @@ function getCurrentShuttleStatus() {
                                         doorOpenStop.date = new Date();
                                         currentLocation.stop = doorOpenStop;
                                         // Add DoorOpenLocation
+                                        // not do push to array if it is the same location as the last one
+                                        if (pattern.doorOpenLocations[pattern.doorOpenLocations.length() - 1].stop.ID == currentLocation.stop.ID) {
+                                            pattern.doorOpenLocations.pop();
+                                        }
                                         pattern.doorOpenLocations.push(currentLocation);
+
                                     }
                                 }
                             });

@@ -11,5 +11,5 @@ var server = app.listen(app.get('port'), function() {
   // Update shuttle currentLocation for all the routes every minute
   setInterval(function() {
     getCurrentShuttleStatus().done();
-  }, 60000);
+  }, 30000);
 });
