@@ -60,15 +60,16 @@ function updateRouteStatus(route) {
         .then(function(currentLocations) {
             _.forEach(route.Patterns, function(pattern) {
                 // Clear previousLocation for this pattern
-                pattern.currentLocations = [];
+                pattern.currentLocations = {};
                 // Preserve previousDoorOpenLocations
-                pattern.doorOpenLocations = pattern.doorOpenLocations || [];
+                pattern.doorOpenLocations = pattern.doorOpenLocations || {};
                 _.forEach(currentLocations, function(currentLocation) {
                     currentLocation.date = new Date();
-                    if (currentLocation.PatternId == pattern.ID) {
+                    if (currentLocation.PatternId === pattern.ID) {
                         // Add currentLocation
-                        pattern.currentLocations.push(currentLocation);
-                        if (currentLocation.DoorStatus == 1) {
+                        pattern.currentLocations[currentLocation.ID] = [];
+                        pattern.currentLocations[currentLocation.ID].push(currentLocation);
+                        if (currentLocation.DoorStatus === 1) {
                             // Determine which stop it is
                             var doorOpenStop = findNearestStop(currentLocation, pattern.stops);
                             // Add date to the stop in the stops array as well
@@ -118,11 +119,13 @@ function findNearestStop(currentLocation, stops) {
  */
 function updateDoorOpenLocations(currentLocation, doorOpenLocations) {
     doorOpenLocations = _.cloneDeep(doorOpenLocations);
-    var length = doorOpenLocations.length;
-    if (length > 0 && doorOpenLocations[length - 1].stop.ID == currentLocation.stop.ID) {
-        doorOpenLocations.pop();
+    var currentDoorOpenLocations = doorOpenLocations[currentLocation.ID] || [];
+    var length = currentDoorOpenLocations.length;
+    if (length > 0 && currentDoorOpenLocations[length - 1].stop.ID === currentLocation.stop.ID) {
+        currentDoorOpenLocations.pop();
     }
-    doorOpenLocations.push(currentLocation);
+    currentDoorOpenLocations.push(currentLocation);
+    doorOpenLocations[currentLocation.ID] = currentDoorOpenLocations;
     return doorOpenLocations;
 }
 

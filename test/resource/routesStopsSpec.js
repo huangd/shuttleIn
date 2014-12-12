@@ -14,18 +14,20 @@ chai.use(chaiAsPromised);
 
 describe('updateDoorOpenLocations', function() {
     it('should add currentLocation if it is not the same as the last one in the array', function() {
-        var doorOpenLocations = [{
-            ID: 1167,
-            RouteId: 1076,
-            PatternId: 2044,
-            Name: "2357",
-            DoorStatus: 1,
-            Latitude: 37.800801,
-            Longitude: -122.42919,
-            stop: {
-                ID: 123
-            }
-        }];
+        var doorOpenLocations = {
+            "1167": [{
+                ID: 1167,
+                RouteId: 1076,
+                PatternId: 2044,
+                Name: "2357",
+                DoorStatus: 1,
+                Latitude: 37.800801,
+                Longitude: -122.42919,
+                stop: {
+                    ID: 123
+                }
+            }]
+        };
         var currentLocation = {
             ID: 1167,
             RouteId: 1076,
@@ -39,11 +41,11 @@ describe('updateDoorOpenLocations', function() {
             }
         };
         var updatedDoorOpenLocations = routesStops.updateDoorOpenLocations(currentLocation, doorOpenLocations);
-        updatedDoorOpenLocations.length.should.eql(2);
+        updatedDoorOpenLocations[1167].length.should.eql(2);
     });
 
     it('should add currentLocation if the doorOpenLocations array is empty', function() {
-        var doorOpenLocations = [];
+        var doorOpenLocations = {};
         var currentLocation = {
             ID: 1167,
             RouteId: 1076,
@@ -57,22 +59,24 @@ describe('updateDoorOpenLocations', function() {
             }
         };
         var updatedDoorOpenLocations = routesStops.updateDoorOpenLocations(currentLocation, doorOpenLocations);
-        updatedDoorOpenLocations.length.should.eql(1);
+        updatedDoorOpenLocations[1167].length.should.eql(1);
     });
 
     it('should replace the last location in doorOpenLocations with currentLocation if currentLocation is the same stop as the last location in doorOpenLocations ', function() {
-        var doorOpenLocations = [{
-            ID: 1167,
-            RouteId: 1076,
-            PatternId: 2044,
-            Name: "2357",
-            DoorStatus: 1,
-            Latitude: 37.800801,
-            Longitude: -122.42919,
-            stop: {
-                ID: 234
-            }
-        }];
+        var doorOpenLocations = {
+            "11": [{
+                ID: 1167,
+                RouteId: 1076,
+                PatternId: 2044,
+                Name: "2357",
+                DoorStatus: 1,
+                Latitude: 37.800801,
+                Longitude: -122.42919,
+                stop: {
+                    ID: 234
+                }
+            }]
+        };
         var currentLocation = {
             ID: 11,
             RouteId: 1076,
@@ -86,8 +90,8 @@ describe('updateDoorOpenLocations', function() {
             }
         };
         var updatedDoorOpenLocations = routesStops.updateDoorOpenLocations(currentLocation, doorOpenLocations);
-        updatedDoorOpenLocations.length.should.eql(1);
-        updatedDoorOpenLocations[0].ID.should.eql(11);
+        updatedDoorOpenLocations[11].length.should.eql(1);
+        updatedDoorOpenLocations[11][0].ID.should.eql(11);
     });
 });
 
@@ -122,9 +126,9 @@ describe('updateRouteStatus', function() {
         routesStops.updateRouteStatus(routesWithStops[0]).done(function(route) {
             _.forEach(route.Patterns, function(pattern) {
                 if (pattern.ID === 2285) {
-                    pattern.currentLocations.length.should.eql(1);
+                    pattern.currentLocations[1426].length.should.eql(1);
                 } else {
-                    pattern.currentLocations.length.should.eql(0);
+                    should.not.exist(pattern.currentLocations[1426]);
                 }
             });
             done();
@@ -136,9 +140,9 @@ describe('updateRouteStatus', function() {
         routesStops.updateRouteStatus(routesWithStops[0]).done(function(route) {
             _.forEach(route.Patterns, function(pattern) {
                 if (pattern.ID === 2285) {
-                    pattern.doorOpenLocations.length.should.eql(1);
+                    pattern.doorOpenLocations[1426].length.should.eql(1);
                 } else {
-                    pattern.doorOpenLocations.length.should.eql(0);
+                    should.not.exist(pattern.doorOpenLocations[1426]);
                 }
             });
             done();
