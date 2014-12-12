@@ -1,5 +1,6 @@
 var debug = require('debug')('shuttle');
 
+var _ = require('lodash');
 var q = require('q');
 var traverse = require('traverse');
 var express = require('express');
@@ -120,6 +121,7 @@ router.get('/eta/:routeId', function(req, res) {
         })
         .get(1)
         .done(function(body) {
+            body = _.pick(body, ['distance', 'time']);
             res.json(body);
         }, function(error) {
             res.json(500, {
