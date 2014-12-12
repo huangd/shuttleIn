@@ -22,7 +22,7 @@ function getRoutesStopsList() {
               shuttleIn.shuttleInApi('/route/' + route.Patterns[1].ID + '/direction/0/stops').get(1)
             ],
             function (amStops, pmStops) {
-              return q.spread([calculateDistanceTimeBetweenStops(amStops), calculateDistanceTimeBetweenStops(pmStops)],
+              return q.spread([exports.calculateDistanceTimeBetweenStops(amStops), exports.calculateDistanceTimeBetweenStops(pmStops)],
                 function (amStops, pmStops) {
                   route.Patterns[0].stops = amStops;
                   route.Patterns[1].stops = pmStops;

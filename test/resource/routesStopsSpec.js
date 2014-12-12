@@ -177,8 +177,9 @@ describe('getRoutesStopsList', function () {
 describe('calculateDistanceTimeBetweenStops', function () {
   beforeEach(function () {
     var directionsData = require('../data/mapquestApi').directions;
-    var directions = sinon.stub(mapquest, 'directions');
-    directions.returns(directionsData);
+    sinon.stub(mapquest, 'directions', function () {
+      return q([{}, directionsData]);
+    });
   });
   afterEach(function () {
     mapquest.directions.restore();
