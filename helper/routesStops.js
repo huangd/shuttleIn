@@ -118,8 +118,11 @@ function updateRouteStatus(route) {
               var doorOpenStop = findNearestStop(currentLocation, pattern.stops);
               // Add date to the stop in the stops array as well
               doorOpenStop.date = new Date();
+              pattern.latestDoorOpenLocation = doorOpenStop;
               currentLocation.stop = doorOpenStop;
+              // doorOpenLocations is for debugging
               pattern.doorOpenLocations = updateDoorOpenLocations(currentLocation, pattern.doorOpenLocations);
+
             }
           }
         });
