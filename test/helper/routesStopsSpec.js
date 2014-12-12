@@ -5,7 +5,7 @@ var sinon = require("sinon");
 var q = require("q");
 var _ = require("lodash");
 
-var routesStops = require('../../resource/routesStops');
+var routesStops = require('../../helper/routesStops');
 var shuttleIn = require('../../resource/shuttle-in');
 var mapquest = require('../../resource/mapquest');
 

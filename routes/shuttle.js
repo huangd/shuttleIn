@@ -8,7 +8,7 @@ var express = require('express');
 var shuttleInApi = require('../resource/shuttle-in').shuttleInApi;
 var directions = require('../resource/mapquest').directions;
 
-var getRoutesStopsList = require('../resource/routesStops').getRoutesStopsList;
+var getRoutesStopsList = require('../helper/routesStops').getRoutesStopsList;
 
 var router = express.Router();
 

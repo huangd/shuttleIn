@@ -1,7 +1,7 @@
 var q = require('q');
 var _ = require('lodash');
 
-var shuttleIn = require('./shuttle-in');
+var shuttleIn = require('../resource/shuttle-in');
 var mapquest = require('../resource/mapquest');
 
 var routesStopsList;
