@@ -15,15 +15,15 @@ function getRoutesStopsList() {
     return q(routesStopsList);
   } else {
     return shuttleIn.shuttleInApi('/region/0/routes').get(1)
-      .then(function (body) {
-        return _.map(body, function (route) {
+      .then(function(body) {
+        return _.map(body, function(route) {
           return q.spread([
               shuttleIn.shuttleInApi('/route/' + route.Patterns[0].ID + '/direction/0/stops').get(1),
               shuttleIn.shuttleInApi('/route/' + route.Patterns[1].ID + '/direction/0/stops').get(1)
             ],
-            function (amStops, pmStops) {
+            function(amStops, pmStops) {
               return q.spread([exports.calculateDistanceTimeBetweenStops(amStops), exports.calculateDistanceTimeBetweenStops(pmStops)],
-                function (amStops, pmStops) {
+                function(amStops, pmStops) {
                   route.Patterns[0].stops = amStops;
                   route.Patterns[1].stops = pmStops;
                   return route;
@@ -31,7 +31,7 @@ function getRoutesStopsList() {
             });
         });
       })
-      .spread(function () {
+      .spread(function() {
         routesStopsList = Array.prototype.slice.call(arguments);
         return routesStopsList;
       });
@@ -42,7 +42,7 @@ function getRoutesStopsList() {
  * get Shuttle ETA to the stop of the route
  * @param  {[number]} routeId
  * @param  {[number]} stopId
- * @return {[obj]}
+ * @return {[promise]}
  *  {
  *    distance: [
  *      0,
@@ -55,17 +55,109 @@ function getRoutesStopsList() {
  *  }
  */
 function getShuttleETA(routeId, stopId) {
-  return q.sread([getRoutesStopsList(), shuttleIn.shuttleInApi('/route/' + route.ID + '/vehicles').get(1)],
-    function (routesStopsList, currentLocations) {
-      return _.map(currentLocations, function (currentLocation) {
-        var route = _.first(routesStopsList, function (route) {
-          return route.ID === routeId;
+  return q.spread([exports.getRoutesStopsList(), shuttleIn.shuttleInApi('/route/' + routeId + '/vehicles').get(1)],
+      function(routesStopsList, currentLocations) {
+        return _.map(currentLocations, function(currentLocation) {
+          var route = _.find(routesStopsList, function(route) {
+            return route.ID == routeId;
+          });
+          var pattern = _.find(route.Patterns, function(pattern) {
+            return pattern.ID == currentLocation.PatternId;
+          });
+          var stops = pattern.stops;
+          var latestDoorOpenLocation = pattern.latestDoorOpenLocation;
+          var destinationStop = _.find(stops, function(stop) {
+            return stop.ID == stopId;
+          });
+          // if there is no latestDoorOpenLocation, return destinationStop as nextStop
+
+          var nextStop = getNextStop(latestDoorOpenLocation, stops) || destinationStop;
+          return getDirection(currentLocation, nextStop, destinationStop, stops);
         });
-        var pattern = _.first(route.Patterns, function (pattern) {
-          return pattern.ID === currentLocation.PatternId;
-        });
-        return pattern;
-      });
+      })
+    .spread(function() {
+      var directions = Array.prototype.slice.call(arguments);
+      return _.first(_.sortBy(directions, function(direction) {
+        return direction.time[1];
+      }));
+    });
+}
+
+/**
+ * return next stop it will treat stops array
+ * as a circular array
+ * @param  {[obj]} currentStop
+ * @param  {[array]} stops
+ * @return {[obj]}
+ */
+function getNextStop(currentStop, stops) {
+  if (!currentStop) {
+    return;
+  }
+  var index = _.findIndex(stops, {
+    ID: currentStop.ID
+  });
+  index = (index + 1) % stops.length;
+  return stops[index];
+}
+
+/**
+ * return direction from currentLocation all the way to
+ * the destination stop location through the on the way stops
+ * @param  {[obj]} currentLocation
+ * @param  {[obj]} nextStop
+ * @param  {[obj]} destinationStop
+ * @param  {[array]} stops
+ * @return {[promise]}
+ *  {
+ *    distance: [
+ *      0,
+ *      5.164
+ *    ],
+ *    time: [
+ *      0,
+ *      559
+ *    ]
+ *  }
+ */
+function getDirection(currentLocation, nextStop, destinationStop, stops) {
+  var from = {
+    lat: currentLocation.Latitude,
+    lng: currentLocation.Longitude
+  };
+  var to = {
+    lat: nextStop.Latitude,
+    lng: nextStop.Longitude
+  };
+  directionToNextStop = mapquest.directions(from, to).get(1);
+  var nextStopIndex = _.findIndex(stops, {
+    ID: nextStop.ID
+  });
+  var destinationStopIndex = _.findIndex(stops, {
+    ID: destinationStop.ID
+  });
+  var directionBetweenStops = {
+    distance: [
+      0,
+      0
+    ],
+    time: [
+      0,
+      0
+    ]
+  };
+  while (nextStopIndex !== destinationStopIndex) {
+    nextStopIndex = (nextStopIndex + 1) % stops.length;
+    nextStop = stops[nextStopIndex];
+    directionBetweenStops.distance[1] += nextStop.direction.distance[1];
+    directionBetweenStops.time[1] += nextStop.direction.time[1];
+  }
+  return q.spread([directionToNextStop, q(directionBetweenStops)],
+    function(directionToNextStop, directionBetweenStops) {
+      directionToNextStop = _.pick(directionToNextStop, ['distance', 'time']);
+      directionBetweenStops.distance[1] += directionToNextStop.distance[1];
+      directionBetweenStops.time[1] += directionToNextStop.time[1];
+      return directionBetweenStops;
     });
 }
 
@@ -80,7 +172,7 @@ function calculateDistanceTimeBetweenStops(stops) {
   stops = _.cloneDeep(stops);
   var length = stops.length;
   //prepare promises
-  _.forEach(stops, function (stop, index, stops) {
+  _.forEach(stops, function(stop, index, stops) {
     var stopPrev;
     if (index === 0) {
       stopPrev = stops[length - 1];
@@ -99,9 +191,9 @@ function calculateDistanceTimeBetweenStops(stops) {
   });
   //excute promise
   return q.spread(_.pluck(stops, 'direction'),
-    function () {
+    function() {
       var directions = Array.prototype.slice.call(arguments);
-      _.forEach(directions, function (direction, index) {
+      _.forEach(directions, function(direction, index) {
         direction = _.pick(direction, ['distance', 'time']);
         stops[index].direction = direction;
       });
@@ -114,10 +206,10 @@ function calculateDistanceTimeBetweenStops(stops) {
  */
 function getCurrentShuttleStatus() {
   return getRoutesStopsList()
-    .then(function (routes) {
+    .then(function(routes) {
       return _.map(routes, updateRouteStatus);
     })
-    .spread(function () {
+    .spread(function() {
       routesStopsList = Array.prototype.slice.call(arguments);
       return routesStopsList;
     });
@@ -132,13 +224,13 @@ function getCurrentShuttleStatus() {
 function updateRouteStatus(route) {
   route = _.cloneDeep(route);
   return shuttleIn.shuttleInApi('/route/' + route.ID + '/vehicles').get(1)
-    .then(function (currentLocations) {
-      _.forEach(route.Patterns, function (pattern) {
+    .then(function(currentLocations) {
+      _.forEach(route.Patterns, function(pattern) {
         // Clear previousLocation for this pattern
         pattern.currentLocations = {};
         // Preserve previousDoorOpenLocations
         pattern.doorOpenLocations = pattern.doorOpenLocations || {};
-        _.forEach(currentLocations, function (currentLocation) {
+        _.forEach(currentLocations, function(currentLocation) {
           currentLocation.date = new Date();
           if (currentLocation.PatternId === pattern.ID) {
             // Add currentLocation
@@ -160,7 +252,7 @@ function updateRouteStatus(route) {
       });
       return route;
     })
-    .fail(function (error) {
+    .fail(function(error) {
       console.error('Failed to get currentLocation for routeId: ' + route.ID, error);
       return route;
     });
@@ -176,7 +268,7 @@ function updateRouteStatus(route) {
 function findNearestStop(currentLocation, stops) {
   var min = 10000000;
   var doorOpenStop;
-  _.forEach(stops, function (stop) {
+  _.forEach(stops, function(stop) {
     var latDiff = currentLocation.Latitude - stop.Latitude;
     var lonDiff = currentLocation.Longitude - stop.Longitude;
     if (latDiff * latDiff + lonDiff * lonDiff < min) {
@@ -213,3 +305,6 @@ module.exports.updateDoorOpenLocations = updateDoorOpenLocations;
 module.exports.findNearestStop = findNearestStop;
 module.exports.updateRouteStatus = updateRouteStatus;
 module.exports.calculateDistanceTimeBetweenStops = calculateDistanceTimeBetweenStops;
+module.exports.getShuttleETA = getShuttleETA;
+module.exports.getNextStop = getNextStop;
+module.exports.getDirection = getDirection;
