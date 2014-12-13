@@ -39,6 +39,37 @@ function getRoutesStopsList() {
 }
 
 /**
+ * get Shuttle ETA to the stop of the route
+ * @param  {[number]} routeId
+ * @param  {[number]} stopId
+ * @return {[obj]}
+ *  {
+ *    distance: [
+ *      0,
+ *      5.164
+ *    ],
+ *    time: [
+ *      0,
+ *      559
+ *    ]
+ *  }
+ */
+function getShuttleETA(routeId, stopId) {
+  return q.sread([getRoutesStopsList(), shuttleIn.shuttleInApi('/route/' + route.ID + '/vehicles').get(1)],
+    function (routesStopsList, currentLocations) {
+      return _.map(currentLocations, function (currentLocation) {
+        var route = _.first(routesStopsList, function (route) {
+          return route.ID === routeId;
+        });
+        var pattern = _.first(route.Patterns, function (pattern) {
+          return pattern.ID === currentLocation.PatternId;
+        });
+        return pattern;
+      });
+    });
+}
+
+/**
  * calculate distance and time between stops
  * the distance and time from stopA to stopB are stored in
  * object stopB.direction
