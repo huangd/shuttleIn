@@ -2,7 +2,7 @@
 var debug = require('debug')('www');
 var app = require('../app');
 
-var getCurrentShuttleStatus = require('../resource/routesStops').getCurrentShuttleStatus;
+var getCurrentShuttleStatus = require('../helper/routesStops').getCurrentShuttleStatus;
 
 app.set('port', process.env.PORT || 3000);
 
