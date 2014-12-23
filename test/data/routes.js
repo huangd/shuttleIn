@@ -167,6 +167,24 @@ var vehicles = [{
     "RouteId": 1409,
     "PatternId": 2285,
     "Name": "2787",
+    "DoorStatus": 0,
+    "Latitude": 37.394753,
+    "Longitude": -122.036277,
+    "Coordinate": {
+        "Latitude": 37.394753,
+        "Longitude": -122.036277
+    },
+    "Speed": 0,
+    "Heading": "SE",
+    "Updated": "10:39:58A",
+    "UpdatedAgo": "7m12s ago"
+}];
+
+var vehiclesDoorOpen = [{
+    "ID": 1426,
+    "RouteId": 1409,
+    "PatternId": 2285,
+    "Name": "2787",
     "DoorStatus": 1,
     "Latitude": 37.394753,
     "Longitude": -122.036277,
@@ -183,3 +201,4 @@ var vehicles = [{
 module.exports.routes = routes;
 module.exports.routesWithStops = routesWithStops;
 module.exports.vehicles = vehicles;
+module.exports.vehiclesDoorOpen = vehiclesDoorOpen;
