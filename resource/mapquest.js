@@ -9,7 +9,7 @@ var request = require('request').defaults({
 var requestQ = q.denodeify(request);
 
 var appKey = 'Fmjtd%7Cluur2d6y29%2C20%3Do5-9abgla';
-var baseUrl = 'http://www.mapquestapi.com';
+var baseUrl = 'http://open.mapquestapi.com';
 
 function directions(from, to) {
     /**
