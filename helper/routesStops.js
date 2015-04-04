@@ -84,8 +84,8 @@ function getShuttleETA(routeId, stopId) {
 
 /**
  * return next stop it will treat stops array
- * if shuttle door is open return latestDoorOpenLocation as nextStop
  * as a circular array
+ * if shuttle door is open return latestDoorOpenLocation as nextStop
  * @param  {[obj]} currentLocation current shuttle GPS location
  * @param  {[obj]} currentStop latestDoorOpenLocation
  * @param  {[array]} stops
