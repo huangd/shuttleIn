@@ -287,7 +287,7 @@ function findNearestStop(currentLocation, stops) {
 /**
  * Add DoorOpenLocation
  * not do push to array if it is the same location as the last one
- * doorOpenLocations length should not be greater than stops
+ * doorOpenLocations length should not be greater than stops - 1
  * @param  {[obj]} currentLocation currentDoorOpenLocation
  * @param  {[array]} doorOpenLocations
  * @return {[array]} an updated doorOpenLocations
@@ -300,7 +300,7 @@ function updateDoorOpenLocations(currentLocation, doorOpenLocations, numberOfSto
     currentDoorOpenLocations.pop();
   }
   currentDoorOpenLocations.push(currentLocation);
-  if (currentDoorOpenLocations.length > numberOfStops) {
+  if (currentDoorOpenLocations.length >= numberOfStops) {
     currentDoorOpenLocations.shift();
   }
   doorOpenLocations[currentLocation.ID] = currentDoorOpenLocations;

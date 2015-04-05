@@ -114,7 +114,7 @@ describe('updateDoorOpenLocations', function() {
       }
     };
 
-    var updatedDoorOpenLocations = routesStops.updateDoorOpenLocations(currentLocation, doorOpenLocations, 2);
+    var updatedDoorOpenLocations = routesStops.updateDoorOpenLocations(currentLocation, doorOpenLocations, 3);
     updatedDoorOpenLocations[11].should.eql([{
       stop: {
         ID: 124
