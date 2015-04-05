@@ -248,7 +248,7 @@ function updateRouteStatus(route) {
               pattern.latestDoorOpenLocation = doorOpenStop;
               currentLocation.stop = doorOpenStop;
               // doorOpenLocations is for debugging
-              pattern.doorOpenLocations = updateDoorOpenLocations(currentLocation, pattern.doorOpenLocations);
+              pattern.doorOpenLocations = updateDoorOpenLocations(currentLocation, pattern.doorOpenLocations, pattern.stops.length);
 
             }
           }
@@ -287,11 +287,12 @@ function findNearestStop(currentLocation, stops) {
 /**
  * Add DoorOpenLocation
  * not do push to array if it is the same location as the last one
- * @param  {[obj]} currentLocation
+ * doorOpenLocations length should not be greater than stops
+ * @param  {[obj]} currentLocation currentDoorOpenLocation
  * @param  {[array]} doorOpenLocations
  * @return {[array]} an updated doorOpenLocations
  */
-function updateDoorOpenLocations(currentLocation, doorOpenLocations) {
+function updateDoorOpenLocations(currentLocation, doorOpenLocations, numberOfStops) {
   doorOpenLocations = _.cloneDeep(doorOpenLocations);
   var currentDoorOpenLocations = doorOpenLocations[currentLocation.ID] || [];
   var length = currentDoorOpenLocations.length;
@@ -299,6 +300,9 @@ function updateDoorOpenLocations(currentLocation, doorOpenLocations) {
     currentDoorOpenLocations.pop();
   }
   currentDoorOpenLocations.push(currentLocation);
+  if (currentDoorOpenLocations.length > numberOfStops) {
+    currentDoorOpenLocations.shift();
+  }
   doorOpenLocations[currentLocation.ID] = currentDoorOpenLocations;
   return doorOpenLocations;
 }

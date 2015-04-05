@@ -12,8 +12,8 @@ var mapquest = require('../../resource/mapquest');
 chai.use(chaiAsPromised);
 
 
-describe('updateDoorOpenLocations', function () {
-  it('should add currentLocation if it is not the same as the last one in the array', function () {
+describe('updateDoorOpenLocations', function() {
+  it('should add currentLocation if it is not the same as the last one in the array', function() {
     var doorOpenLocations = {
       "1167": [{
         ID: 1167,
@@ -44,7 +44,7 @@ describe('updateDoorOpenLocations', function () {
     updatedDoorOpenLocations[1167].length.should.eql(2);
   });
 
-  it('should add currentLocation if the doorOpenLocations array is empty', function () {
+  it('should add currentLocation if the doorOpenLocations array is empty', function() {
     var doorOpenLocations = {};
     var currentLocation = {
       ID: 1167,
@@ -62,7 +62,7 @@ describe('updateDoorOpenLocations', function () {
     updatedDoorOpenLocations[1167].length.should.eql(1);
   });
 
-  it('should replace the last location in doorOpenLocations with currentLocation if currentLocation is the same stop as the last location in doorOpenLocations ', function () {
+  it('should replace the last location in doorOpenLocations with currentLocation if currentLocation is the same stop as the last location in doorOpenLocations ', function() {
     var doorOpenLocations = {
       "11": [{
         ID: 1167,
@@ -93,11 +93,44 @@ describe('updateDoorOpenLocations', function () {
     updatedDoorOpenLocations[11].length.should.eql(1);
     updatedDoorOpenLocations[11][0].ID.should.eql(11);
   });
+
+  it('should not make the length of doorOpenLocations greater than the number of stops', function() {
+    var doorOpenLocations = {
+      "11": [{
+        stop: {
+          ID: 123
+        }
+      }, {
+        stop: {
+          ID: 124
+        }
+      }]
+    };
+
+    var currentLocation = {
+      ID: 11,
+      stop: {
+        ID: 125
+      }
+    };
+
+    var updatedDoorOpenLocations = routesStops.updateDoorOpenLocations(currentLocation, doorOpenLocations, 2);
+    updatedDoorOpenLocations[11].should.eql([{
+      stop: {
+        ID: 124
+      }
+    }, {
+      ID: 11,
+      stop: {
+        ID: 125
+      }
+    }]);
+  });
 });
 
-describe('findNearestStop', function () {
+describe('findNearestStop', function() {
   var stops = require('../data/stops').stops2285;
-  it('should return the nearestStop given currentLocation', function () {
+  it('should return the nearestStop given currentLocation', function() {
     var currentLocation = {
       ID: 1426,
       RouteId: 1409,
@@ -112,19 +145,19 @@ describe('findNearestStop', function () {
   });
 });
 
-describe('updateRouteStatus', function () {
-  beforeEach(function () {
+describe('updateRouteStatus', function() {
+  beforeEach(function() {
     var vehiclesDoorOpen = require('../data/routes').vehiclesDoorOpen;
     sinon.stub(shuttleIn, 'shuttleInApi').returns(q([{}, vehiclesDoorOpen]));
   });
-  afterEach(function () {
+  afterEach(function() {
     shuttleIn.shuttleInApi.restore();
   });
 
-  it('should update currentLocation', function (done) {
+  it('should update currentLocation', function(done) {
     var routesWithStops = require('../data/routes').routesWithStops;
-    routesStops.updateRouteStatus(routesWithStops[0]).done(function (route) {
-      _.forEach(route.Patterns, function (pattern) {
+    routesStops.updateRouteStatus(routesWithStops[0]).done(function(route) {
+      _.forEach(route.Patterns, function(pattern) {
         if (pattern.ID === 2285) {
           pattern.currentLocations[1426].length.should.eql(1);
         } else {
@@ -135,10 +168,10 @@ describe('updateRouteStatus', function () {
     });
   });
 
-  it('should update doorOpenLocations', function (done) {
+  it('should update doorOpenLocations', function(done) {
     var routesWithStops = require('../data/routes').routesWithStops;
-    routesStops.updateRouteStatus(routesWithStops[0]).done(function (route) {
-      _.forEach(route.Patterns, function (pattern) {
+    routesStops.updateRouteStatus(routesWithStops[0]).done(function(route) {
+      _.forEach(route.Patterns, function(pattern) {
         if (pattern.ID === 2285) {
           pattern.doorOpenLocations[1426].length.should.eql(1);
         } else {
@@ -150,8 +183,8 @@ describe('updateRouteStatus', function () {
   });
 });
 
-describe('getRoutesStopsList', function () {
-  beforeEach(function () {
+describe('getRoutesStopsList', function() {
+  beforeEach(function() {
     var routes = require('../data/routes').routes;
     var stops2285 = require('../data/stops').stops2285;
     var stops2286 = require('../data/stops').stops2286;
@@ -159,35 +192,35 @@ describe('getRoutesStopsList', function () {
     shuttleInApi.withArgs('/region/0/routes').returns(q([{}, routes]));
     shuttleInApi.withArgs('/route/2285/direction/0/stops').returns(q([{}, stops2285]));
     shuttleInApi.withArgs('/route/2286/direction/0/stops').returns(q([{}, stops2286]));
-    sinon.stub(routesStops, 'calculateDistanceTimeBetweenStops', function (stops) {
+    sinon.stub(routesStops, 'calculateDistanceTimeBetweenStops', function(stops) {
       return q(stops);
     });
   });
-  afterEach(function () {
+  afterEach(function() {
     shuttleIn.shuttleInApi.restore();
     routesStops.calculateDistanceTimeBetweenStops.restore();
   });
 
-  it('should add stops list to routes', function () {
+  it('should add stops list to routes', function() {
     var routesWithStops = require('../data/routes').routesWithStops;
     return routesStops.getRoutesStopsList().should.eventually.eql(routesWithStops);
   });
 });
 
-describe('calculateDistanceTimeBetweenStops', function () {
-  beforeEach(function () {
+describe('calculateDistanceTimeBetweenStops', function() {
+  beforeEach(function() {
     var directionsData = require('../data/mapquestApi').directions;
-    sinon.stub(mapquest, 'directions', function () {
+    sinon.stub(mapquest, 'directions', function() {
       return q([{}, directionsData]);
     });
   });
-  afterEach(function () {
+  afterEach(function() {
     mapquest.directions.restore();
   });
-  it('should populate all the stops with direction with distance and time', function (done) {
+  it('should populate all the stops with direction with distance and time', function(done) {
     var stops = require('../data/stops').stops2285;
-    routesStops.calculateDistanceTimeBetweenStops(stops).done(function (stops) {
-      _.forEach(stops, function (stop) {
+    routesStops.calculateDistanceTimeBetweenStops(stops).done(function(stops) {
+      _.forEach(stops, function(stop) {
         should.exist(stop.direction.time);
         should.exist(stop.direction.distance);
       });
@@ -196,7 +229,7 @@ describe('calculateDistanceTimeBetweenStops', function () {
   });
 });
 
-describe('getNextStop', function () {
+describe('getNextStop', function() {
   var stops = [{
     ID: 1
   }, {
@@ -205,7 +238,7 @@ describe('getNextStop', function () {
     ID: 3
   }];
 
-  it('should return the next stop', function () {
+  it('should return the next stop', function() {
     var currentStop = {
       ID: 1
     };
@@ -214,7 +247,7 @@ describe('getNextStop', function () {
     });
   });
 
-  it('should return the first stop in stops if the currentStop is the last one in stops', function () {
+  it('should return the first stop in stops if the currentStop is the last one in stops', function() {
     var currentStop = {
       ID: 3
     };
@@ -223,7 +256,7 @@ describe('getNextStop', function () {
     });
   });
 
-  it('should return currentStop as nextStop if shuttle door is open now', function () {
+  it('should return currentStop as nextStop if shuttle door is open now', function() {
     var vehiclesDoorOpen = require('../data/routes').vehiclesDoorOpen[0];
     var currentStop = {
       ID: 2
@@ -234,7 +267,7 @@ describe('getNextStop', function () {
   });
 });
 
-describe('getDirection', function () {
+describe('getDirection', function() {
   var currentLocation = {
     ID: 1167,
     RouteId: 1076,
@@ -264,8 +297,8 @@ describe('getDirection', function () {
 
   var stopsWithDirection2285 = require('../data/stops').stopsWithDirection2285;
 
-  beforeEach(function () {
-    sinon.stub(mapquest, 'directions', function () {
+  beforeEach(function() {
+    sinon.stub(mapquest, 'directions', function() {
       return q([{}, {
         distance: [
           0,
@@ -279,11 +312,11 @@ describe('getDirection', function () {
     });
   });
 
-  afterEach(function () {
+  afterEach(function() {
     mapquest.directions.restore();
   });
 
-  it('should return the directions when nextStop is destinationStop', function () {
+  it('should return the directions when nextStop is destinationStop', function() {
 
     var destinationStop = nextStop;
     return routesStops.getDirection(currentLocation, nextStop, destinationStop, stopsWithDirection2285).should.eventually.eql({
@@ -298,7 +331,7 @@ describe('getDirection', function () {
     });
   });
 
-  it('should return the directions when nextStop is not destinationStop', function (done) {
+  it('should return the directions when nextStop is not destinationStop', function(done) {
     var destinationStop = {
       ID: 495142,
       Image: "stop_sign_medium.gif",
@@ -317,7 +350,7 @@ describe('getDirection', function () {
       }
     };
 
-    routesStops.getDirection(currentLocation, nextStop, destinationStop, stopsWithDirection2285).done(function (direction) {
+    routesStops.getDirection(currentLocation, nextStop, destinationStop, stopsWithDirection2285).done(function(direction) {
       (direction.distance[1] - 20.886 < 0.0001).should.equal(true);
       (direction.time[1] - 2086 < 0.0001).should.equal(true);
       done();
@@ -325,13 +358,13 @@ describe('getDirection', function () {
   });
 });
 
-describe('getShuttleETA', function () {
-  beforeEach(function () {
+describe('getShuttleETA', function() {
+  beforeEach(function() {
     var routesWithStops = require('../data/routes').routesWithStops;
     sinon.stub(routesStops, 'getRoutesStopsList').returns(q(routesWithStops));
     var vehicles = require('../data/routes').vehicles;
     sinon.stub(shuttleIn, 'shuttleInApi').returns(q([{}, vehicles]));
-    sinon.stub(mapquest, 'directions', function () {
+    sinon.stub(mapquest, 'directions', function() {
       return q([{}, {
         distance: [
           0,
@@ -345,11 +378,11 @@ describe('getShuttleETA', function () {
     });
   });
 
-  afterEach(function () {
+  afterEach(function() {
     routesStops.getRoutesStopsList.restore();
     mapquest.directions.restore();
   });
-  it('should return shuttle ETA', function () {
+  it('should return shuttle ETA', function() {
     return routesStops.getShuttleETA(1409, 1099386).should.eventually.eql({
       distance: [
         0,
