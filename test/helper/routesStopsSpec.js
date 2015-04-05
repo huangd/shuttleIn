@@ -238,30 +238,58 @@ describe('getNextStop', function() {
     ID: 3
   }];
 
-  it('should return the next stop', function() {
-    var currentStop = {
-      ID: 1
+  it('should return the next stop which is not in the doorOpenLocations', function() {
+    var doorOpenLocations = {
+      "123": [{
+        ID: 1
+      }, {
+        ID: 3
+      }]
     };
-    routesStops.getNextStop(null, currentStop, stops).should.eql({
+    var currentLocation = {
+      ID: 123
+    };
+    routesStops.getNextStop(currentLocation, doorOpenLocations, stops).should.eql({
+      ID: 2
+    });
+  });
+
+  it('should return the next stop', function() {
+    var doorOpenLocations = {
+      "123": [{
+        ID: 1
+      }]
+    };
+    var currentLocation = {
+      ID: 123
+    };
+    routesStops.getNextStop(currentLocation, doorOpenLocations, stops).should.eql({
       ID: 2
     });
   });
 
   it('should return the first stop in stops if the currentStop is the last one in stops', function() {
-    var currentStop = {
-      ID: 3
+    var doorOpenLocations = {
+      "123": [{
+        ID: 3
+      }]
     };
-    routesStops.getNextStop(null, currentStop, stops).should.eql({
+    var currentLocation = {
+      ID: 123
+    };
+    routesStops.getNextStop(currentLocation, doorOpenLocations, stops).should.eql({
       ID: 1
     });
   });
 
   it('should return currentStop as nextStop if shuttle door is open now', function() {
     var vehiclesDoorOpen = require('../data/routes').vehiclesDoorOpen[0];
-    var currentStop = {
-      ID: 2
+    var doorOpenLocations = {
+      "1426": [{
+        ID: 2
+      }]
     };
-    routesStops.getNextStop(vehiclesDoorOpen, currentStop, stops).should.eql({
+    routesStops.getNextStop(vehiclesDoorOpen, doorOpenLocations, stops).should.eql({
       ID: 2
     });
   });
