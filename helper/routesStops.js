@@ -70,7 +70,10 @@ function getShuttleETA(routeId, stopId) {
             return stop.ID == stopId;
           });
           // if there is no latestDoorOpenLocation, return destinationStop as nextStop
-          var nextStop = getNextStop(currentLocation, doorOpenLocations, stops) || destinationStop;
+          // Note: why: some shuttle routes are not following the pre-defined the stops, it causes a bad user experience
+          // we are returning destinationStop as nextStop for now
+          // var nextStop = getNextStop(currentLocation, doorOpenLocations, stops) || destinationStop;
+          var nextStop = destinationStop;
           return getDirection(currentLocation, nextStop, destinationStop, stops);
         });
       })
