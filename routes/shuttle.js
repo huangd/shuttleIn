@@ -151,6 +151,12 @@ router.get('/eta/:routeId/:stopId', function(req, res) {
     });
 });
 
+
+/**
+ * Get current GEO points of all the vehicles available
+ * This is a wrap around the api provided by ridein backend and should not be called by client directly.
+ * For example: http://localhost:3000/shuttle/getMapVehiclePoints
+ */
 router.get('/getMapVehiclePoints', function(req, res) {
   rideinApi.getMapVehiclePoints().done(function() {
     var body = arguments[0][1];
@@ -158,6 +164,13 @@ router.get('/getMapVehiclePoints', function(req, res) {
   });
 });
 
+
+/**
+ * Return all the metadata about the available vehicles which includes routeId, stops ande etc.
+ * This is a wrap arond the Api provided by ridein backen and should not be called by client directly.
+ * This return response could be huge since it has all the vehicles metadata
+ * For example: http://localhost:3000/shuttle/getRoutesForMapWithSchedule
+ */
 router.get('/getRoutesForMapWithSchedule', function(req, res) {
   rideinApi.getRoutesForMapWithSchedule().done(function() {
     var body = arguments[0][1];
