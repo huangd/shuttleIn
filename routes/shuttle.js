@@ -6,6 +6,7 @@ var traverse = require('traverse');
 var express = require('express');
 
 var shuttleInApi = require('../resource/shuttle-in').shuttleInApi;
+var rideinApi = require('../resource/ridein');
 var directions = require('../resource/mapquest').directions;
 var routesStops = require('../helper/routesStops');
 
@@ -149,5 +150,19 @@ router.get('/eta/:routeId/:stopId', function(req, res) {
       });
     });
 });
+
+router.get('/getMapVehiclePoints', function(req, res) {
+  rideinApi.getMapVehiclePoints().done(function() {
+    var body = arguments[0][1];
+    res.json(body);
+  });
+});
+
+router.get('/getRoutesForMapWithSchedule', function(req, res) {
+  rideinApi.getRoutesForMapWithSchedule().done(function() {
+    var body = arguments[0][1];
+    res.json(body);
+  })
+})
 
 module.exports = router;
